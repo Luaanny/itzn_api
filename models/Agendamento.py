@@ -1,12 +1,12 @@
 from datetime import datetime
 from sqlalchemy import func
 from sqlalchemy.orm import Mapped, registry, mapped_column
-from itzn_api.db.base import tabela_registro
+from app.db.base import tabela_registro
 
 tabela_registro = registry()
 
 @tabela_registro.mapped_as_dataclass
-class agendamento:
+class agenda:
     __tablename__ = 'agendamentos'
 
     id: Mapped[int] = mapped_column(init=False, primary_key=True)

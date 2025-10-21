@@ -1,6 +1,6 @@
 from datetime import datetime
-from sqlalchemy import Mapped, registry 
-from itzn_api.db.base import tabela_registro
+from sqlalchemy import Mapped, registry, mapped_column
+from app.db.base import tabela_registro
 
 tabela_registro = registry()
 

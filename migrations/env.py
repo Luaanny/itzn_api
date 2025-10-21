@@ -5,8 +5,8 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from itzn_api.core.config import settings
-from itzn_api.db.base import table_registry
+from app.core.config import settings
+from app.db.base import table_registry
 
 
 config = context.config
