@@ -1,12 +1,10 @@
-from typing import Optional, Literal
+from typing import Optional
 
 from fastapi.security import APIKeyHeader
 from fastapi import Depends
 
 from app.core.config import settings
 from app.core.exceptions import unauthorized
-
-VALID_START_HOUR = Literal[13, 14, 15, 16]
 
 api_key_header = APIKeyHeader(
     name='X-Api-Key',
