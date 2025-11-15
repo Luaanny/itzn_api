@@ -1,0 +1,10 @@
+from datetime import datetime
+from sqlalchemy import Mapped, registry, mapped_column
+from app.db.base import tabela_registro
+
+@tabela_registro.mapped_as_dataclass
+class User:
+    __tablename__ = 'users'
+
+    email_usuario: Mapped[str] = mapped_column(init=False, primary_key=True)
+    cargo_usuario: Mapped[str]

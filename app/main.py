@@ -1,5 +1,5 @@
-from fastapi import FastAPI
-from app.routes import (
+from fastapi import FastAPI, Depends
+from app.api import (
     agenda_routes,
     reserva_routes
 )
@@ -12,4 +12,4 @@ app.include_router(reserva_routes.router, prefix="/reserva", tags=["reserva"])
 
 @app.get("/")
 def index():
-    return {"message": "Hello world"}
+    return {"message": "Bem vindo a API de agendamentos"}
