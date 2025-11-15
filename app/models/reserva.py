@@ -10,6 +10,5 @@ class Reserva:
 
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
     data_reserva: Mapped[date] = mapped_column(nullable=False)
-    hora_inicio: Mapped[int] = mapped_column(nullable=False)
     justificativa: Mapped[str]
     email_usuario: Mapped[str] = mapped_column(String(50), nullable=False)
