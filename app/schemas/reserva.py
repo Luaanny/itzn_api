@@ -1,22 +1,21 @@
-from datetime import date
+from pydantic import BaseModel, EmailStr, ConfigDict
 from typing import List
-
-from pydantic import BaseModel, ConfigDict, EmailStr
+from datetime import date
 from app.core.security import VALID_START_HOUR
 
-class CriarAgenda(BaseModel):
+class CriarReserva(BaseModel):
     data_reserva: date
     hora_inicio: VALID_START_HOUR
-    computador: int
+    justificativa: str
     email_usuario: EmailStr
     model_config = ConfigDict(from_attributes=True)
 
-
-class RespostaAgenda(BaseModel):
+class RespostaReserva(BaseModel):
+    id: int
     data_reserva: date
     hora_inicio: VALID_START_HOUR
-    computador: int
+    justificativa: str
     email_usuario: EmailStr
 
-class ListaAgenda(BaseModel):
-    agendamentos: List[RespostaAgenda]
+class ListaReserva(BaseModel):
+    reservas: List[RespostaReserva]
