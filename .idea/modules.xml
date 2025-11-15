@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/itzn_api.py.iml" filepath="$PROJECT_DIR$/.idea/itzn_api.py.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/itzn_api.iml" filepath="$PROJECT_DIR$/.idea/itzn_api.iml" />
     </modules>
   </component>
 </project>

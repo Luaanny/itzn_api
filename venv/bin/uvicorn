@@ -1,4 +1,4 @@
-#!/workspaces/itzn_api.py/venv/bin/python
+#!/workspaces/itzn_api/venv/bin/python
 import sys
 from uvicorn.main import main
 if __name__ == '__main__':

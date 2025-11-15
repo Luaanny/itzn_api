@@ -5,7 +5,7 @@ from app.routes import (
 )
 
 app = FastAPI()
-app.title = "APIagendamentos"
+app.title = "API agendamentos"
 
 app.include_router(agenda_routes.router, prefix="/agendar", tags=["agendar"])
 app.include_router(reserva_routes.router, prefix="/reserva", tags=["reserva"])

@@ -22,4 +22,4 @@ requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.taskipy.tasks]
-run = 'fastapi dev itzn_api/main.py'
+run = 'fastapi dev app/main.py'

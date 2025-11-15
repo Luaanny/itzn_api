@@ -1,4 +1,4 @@
-#!/workspaces/itzn_api.py/venv/bin/python
+#!/workspaces/itzn_api/venv/bin/python
 import sys
 from mako.cmd import cmdline
 if __name__ == '__main__':
