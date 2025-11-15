@@ -1,3 +1,3 @@
-from sqlalchemy import registry 
+from sqlalchemy.orm import registry
 
 tabela_registro = registry()

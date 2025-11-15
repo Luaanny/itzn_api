@@ -1,16 +1,15 @@
-from datetime import datetime
-from sqlalchemy import func
+from datetime import date
+
+from sqlalchemy import String
 from sqlalchemy.orm import Mapped, registry, mapped_column 
 from app.db.base import tabela_registro
 
-tabela_registro = registry()
-
-@tabela_registro.mapped_as_dataclass
-class reserva:
+@tabela_registro.mapped_as_dataclass()
+class Reserva:
     __tablename__ = 'reservas'
 
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
-    data_inicio: Mapped[datetime] = mapped_column(init=False, server_default=func.now)
-    data_fim: Mapped[datetime] = mapped_column(init=False, server_default=func.now)
+    data_reserva: Mapped[date] = mapped_column(nullable=False)
+    hora_inicio: Mapped[int] = mapped_column(nullable=False)
     justificativa: Mapped[str]
-    email_usuario: Mapped[str] = mapped_column(unique=True, foreign_key=True)
+    email_usuario: Mapped[str] = mapped_column(String(50), nullable=False)
