@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, ConfigDict
+from pydantic import BaseModel, EmailStr, ConfigDict, Field
 from typing import List
 from app.core.annotateds import valid_date
 
@@ -15,16 +15,18 @@ class RespostaReserva(BaseModel):
     data_reserva: valid_date
     justificativa: str
     email_usuario: EmailStr
+    status: str
 
 
 class AtualizarReserva(BaseModel):
     data_reserva: valid_date
     email_usuario: EmailStr
+    usuario_administrador: bool = Field(default=False)
 
 
 class DeletarReserva(BaseModel):
     email_usuario: EmailStr
-    administrador: bool
+    usuario_administrador: bool = Field(default=False)
 
 class ListaReserva(BaseModel):
     reservas: List[RespostaReserva]

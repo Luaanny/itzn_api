@@ -1,7 +1,6 @@
 from sqlalchemy.orm import Session
-from app.core.exceptions import not_found, conflict, unauthorized
+from app.core.exceptions import not_found, unauthorized
 from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError
 from app.models.reserva import Reserva
 from app.models.agendamento import Agendamento
 
@@ -43,7 +42,7 @@ def put(update_schema, resource_id:int, resource: Reserva | Agendamento, db: Ses
             detail='Você não tem permissão para atualizar esse recurso.'
         )
 
-    update_data = update_schema.model_dump(exclude=['email_usuario'])
+    update_data = update_schema.model_dump(exclude=['email_usuario', 'usuario_administrador'])
 
     for key, value in update_data.items():
         setattr(db_resource, key, value)

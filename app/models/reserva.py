@@ -13,4 +13,4 @@ class Reserva:
     justificativa: Mapped[str]
     email_usuario: Mapped[str] = mapped_column(String(50), nullable=False)
     status: Mapped[str] = mapped_column(String(50), nullable=False,
-                                        server_default='Aguardando aprovação', init=False)
+                                        server_default='Aguardando Validação', init=False)
