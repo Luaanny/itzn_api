@@ -3,6 +3,7 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from app.core.config import settings
 from app.schemas.agenda import CriarAgenda
+from app.schemas.reserva import CriarReserva
 
 def get_calendar_service():
     try:
@@ -14,7 +15,7 @@ def get_calendar_service():
         print(f"Erro ao carregar credenciais do Google: {e}")
         return None
 
-def create_calendar_event(schema: CriarAgenda):
+def create_appointment_event(schema: CriarAgenda):
     service = get_calendar_service()
     if not service:
         return None
@@ -58,6 +59,49 @@ def create_calendar_event(schema: CriarAgenda):
         print(f"Erro ao criar evento no Google Calendar: {e}")
         return None
 
+def create_reservation_event(schema: CriarReserva):
+    service = get_calendar_service()
+    if not service:
+        return None
+
+    start_datetime = datetime.combine(schema.data_reserva, datetime.min.time())
+    
+    end_datetime = start_datetime + timedelta(days=1)
+
+    event_body = {
+        'summary': f'Agendamento sala',
+        'description': f'Reserva realizada via sistema para a sala',
+        'start': {
+            'dateTime': start_datetime.isoformat(),
+            'timeZone': 'America/Sao_Paulo',
+        },
+        'end': {
+            'dateTime': end_datetime.isoformat(),
+            'timeZone': 'America/Sao_Paulo',
+        },
+        # 'attendees': [
+        #     {'email': schema.email_usuario},
+        # ],
+        'reminders': {
+            'useDefault': False,
+            'overrides': [
+                {'method': 'email', 'minutes': 60},
+                {'method': 'popup', 'minutes': 15},
+            ],
+        },
+    }
+
+    try:
+        event = service.events().insert(
+            calendarId=settings.GOOGLE_CALENDAR_ID,
+            body=event_body,
+            # sendNotifications=True
+        ).execute()
+        return event.get('id')
+    except Exception as e:
+        print(f"Erro ao criar evento no Google Calendar: {e}")
+        return None
+    
 def delete_calendar_event(event_id: str):
     service = get_calendar_service()
     if not service:

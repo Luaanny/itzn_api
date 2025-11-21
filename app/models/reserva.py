@@ -13,6 +13,7 @@ class Reserva:
     data_reserva: Mapped[date] = mapped_column(nullable=False)
     justificativa: Mapped[str]
     email_usuario: Mapped[str] = mapped_column(String(50), nullable=False)
+    google_event_id: Mapped[str | None] = mapped_column(String(255), nullable=True, init=False)
     status: Mapped[str] = mapped_column(String(50), nullable=False,
                                         server_default='Aguardando Validação', init=False)
     alterado: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False,

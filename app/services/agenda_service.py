@@ -8,7 +8,7 @@ from app.core.exceptions import conflict, not_found
 from app.schemas.agenda import CriarAgenda, DeletarAgenda, AtualizarAgenda
 from app.services import post, get_all_user_resources, delete, put
 from app.services.reserva_service import check_if_room_is_available
-from app.services.google_calendar import create_calendar_event
+from app.services.google_calendar import create_appointment_event
 
 
 def check_if_computer_is_available(db: Session, computer_number: int,
@@ -35,7 +35,7 @@ def post_appointment(db: Session, create_schema: CriarAgenda):
     novo_agendamento = post(db=db, create_schema=create_schema, resource=Agendamento)
 
     try:
-        google_id = create_calendar_event(create_schema)
+        google_id = create_appointment_event(create_schema)
         if google_id:
             novo_agendamento.google_event_id = google_id
             db.add(novo_agendamento)

@@ -32,7 +32,7 @@ class AtualizarAgenda(BaseModel):
 
 class DeletarAgenda(BaseModel):
     email_usuario: EmailStr
-    administrador: bool
+    usuario_administrador: bool
 
 class ListaAgenda(BaseModel):
     agendamentos: List[RespostaAgenda]

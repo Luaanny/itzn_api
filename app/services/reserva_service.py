@@ -5,6 +5,7 @@ from datetime import date
 from app.core.exceptions import conflict, unauthorized, not_found
 from app.schemas.reserva import CriarReserva, DeletarReserva, AtualizarReserva, AlterarStatus
 from app.services import (post, delete, put, get_all_user_resources, get)
+from app.services.google_calendar import create_reservation_event
 
 def check_if_room_is_available(reservation_date: date, db: Session):
     room_conflict_query = db.scalar(select(Reserva).where(
@@ -21,7 +22,20 @@ def check_if_room_is_available(reservation_date: date, db: Session):
 
 def post_reservation(db: Session, create_schema: CriarReserva):
     check_if_room_is_available(reservation_date=create_schema.data_reserva, db=db)
-    return post(resource=Reserva, create_schema=create_schema, db=db)
+
+    nova_reserva = post(resource=Reserva, create_schema=create_schema, db=db)
+
+    try:
+        google_id = create_reservation_event(create_schema)
+        if google_id:
+            nova_reserva.google_event_id = google_id
+            db.add(nova_reserva)
+            db.commit()
+            db.refresh(nova_reserva)
+    except Exception as e:
+        print(f"Falha na integração Google: {e}")
+
+    return nova_reserva
 
 def get_user_reservations(db: Session, user_email: str):
     reservas = get_all_user_resources(db=db, user_email=user_email,
