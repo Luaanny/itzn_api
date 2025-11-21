@@ -15,7 +15,8 @@ def check_if_computer_is_available(db: Session, computer_number: int,
     computer_conflict_query = db.scalar(select(Agendamento).where(
         Agendamento.numero_computador == computer_number,
         Agendamento.data_agendamento == reservation_date,
-        Agendamento.hora_inicio == reservation_hour
+        Agendamento.hora_inicio == reservation_hour,
+        Agendamento.cancelado == False
     ))
 
     if computer_conflict_query:
