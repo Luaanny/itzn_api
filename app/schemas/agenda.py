@@ -8,7 +8,6 @@ from pydantic import BaseModel, ConfigDict, EmailStr, AfterValidator
 VALID_COMPUTER_NUMBERS = Literal[2,3,4,5,6,7,8,9,10]
 VALID_START_HOUR = Literal[13, 14, 15, 16]
 
-
 class CriarAgenda(BaseModel):
     data_agendamento: valid_date
     hora_inicio: VALID_START_HOUR

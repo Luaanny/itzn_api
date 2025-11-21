@@ -7,8 +7,8 @@ from app.api import (
 app = FastAPI()
 app.title = "API agendamentos"
 
-app.include_router(agenda_routes.router, prefix="/agendar", tags=["agendamentos"])
-app.include_router(reserva_routes.router, prefix="/reserva", tags=["reservas"])
+app.include_router(agenda_routes.router, prefix="/agendamentos", tags=["agendamentos"])
+app.include_router(reserva_routes.router, prefix="/reservas", tags=["reservas"])
 
 @app.get("/")
 def index():

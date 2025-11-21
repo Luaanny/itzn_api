@@ -18,7 +18,10 @@ def get(resource: Reserva | Agendamento, db: Session, resource_id: int, detail: 
 
 def get_all_user_resources(resource: Reserva | Agendamento, db: Session,
                            user_email: str, detail: str):
-    db_resources = db.scalars(select(resource).where(resource.email_usuario == user_email)).all()
+    db_resources = db.scalars(select(resource).where(
+        resource.email_usuario == user_email,
+        resource.cancelado == False
+        )).all()
 
     return db_resources if db_resources else not_found(detail)
 
@@ -37,12 +40,13 @@ def post(resource: Reserva | Agendamento, create_schema, db: Session):
 def put(update_schema, resource_id:int, resource: Reserva | Agendamento, db: Session, detail):
     db_resource = get(resource=resource, resource_id=resource_id, db=db)
 
-    if db_resource.email_usuario != update_schema.email_usuario:
+    if db_resource.email_usuario != update_schema.email_usuario\
+        and not update_schema.usuario_administrador:
         return unauthorized(
             detail='Você não tem permissão para atualizar esse recurso.'
         )
 
-    update_data = update_schema.model_dump(exclude=['email_usuario', 'usuario_administrador'])
+    update_data = update_schema.model_dump(exclude=['email_usuario'])
 
     for key, value in update_data.items():
         setattr(db_resource, key, value)
@@ -55,14 +59,19 @@ def put(update_schema, resource_id:int, resource: Reserva | Agendamento, db: Ses
 def delete(delete_schema, resource_id:int, resource, db: Session, detail: str):
     db_resource = get(resource=resource, resource_id=resource_id, db=db, detail=detail)
 
-    if db_resource.email_usuario != delete_schema.email_usuario:
+    if db_resource.email_usuario != delete_schema.email_usuario\
+        and not delete_schema.usuario_administrador:
         return unauthorized(
             detail="Você não tem permissão para deletar esse recurso."
         )
 
+    if db_resource.cancelado:
+        return not_found(detail=detail)
+
     if db_resource:
-        db.delete(db_resource)
-        db.commit()
-        return True
+       db_resource.cancelado = True
+       db.commit()
+       db.refresh(db_resource)
+       return True
 
     return not_found(detail='Resource not found')

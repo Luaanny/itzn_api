@@ -1,6 +1,7 @@
 from datetime import date
 
-from sqlalchemy import String
+from sqlalchemy import String, Boolean
+from sqlalchemy.sql import expression
 from sqlalchemy.orm import Mapped, registry, mapped_column 
 from app.db.base import tabela_registro
 
@@ -14,3 +15,8 @@ class Reserva:
     email_usuario: Mapped[str] = mapped_column(String(50), nullable=False)
     status: Mapped[str] = mapped_column(String(50), nullable=False,
                                         server_default='Aguardando Validação', init=False)
+    alterado: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False,
+                                          init=False, server_default=expression.false())
+    alterado_por: Mapped[str] = mapped_column(String(50), nullable=True, init=False)
+    cancelado: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False,
+                                            init=False, server_default=expression.false())
