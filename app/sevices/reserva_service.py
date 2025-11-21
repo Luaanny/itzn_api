@@ -61,4 +61,5 @@ def get_canceled_reservations(db: Session, user_email: str):
         Reserva.cancelado == True
     )).all()
 
-    return {'reservas': canceled_reservations} if canceled_reservations else not_found('Nenhuma reserva cancelada por esse usuário até o momento.')
+    return {'reservas': canceled_reservations} if canceled_reservations else \
+        not_found('Nenhuma reserva cancelada por esse usuário até o momento.')

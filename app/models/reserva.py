@@ -2,7 +2,7 @@ from datetime import date
 
 from sqlalchemy import String, Boolean
 from sqlalchemy.sql import expression
-from sqlalchemy.orm import Mapped, registry, mapped_column 
+from sqlalchemy.orm import Mapped,mapped_column 
 from app.db.base import tabela_registro
 
 @tabela_registro.mapped_as_dataclass()
