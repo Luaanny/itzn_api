@@ -7,6 +7,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+app/service-account-key.json
+
 # C extensions
 *.so
 

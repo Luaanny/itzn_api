@@ -7,7 +7,7 @@ from app.core.security import get_api_key
 from app.core.annotateds import session_type, check_api_key
 from app.schemas.agenda import (CriarAgenda, RespostaAgenda, ListaAgenda, 
                                 DeletarAgenda, AtualizarAgenda)
-from app.sevices.agenda_service import (post_appointment, get_all_user_appointments,
+from app.services.agenda_service import (post_appointment, get_all_user_appointments,
                                         delete_user_appointment, update_user_appointment, get_canceled_appointments)
 
 router = APIRouter()

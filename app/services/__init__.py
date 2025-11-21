@@ -3,6 +3,7 @@ from app.core.exceptions import not_found, unauthorized
 from sqlalchemy import select
 from app.models.reserva import Reserva
 from app.models.agendamento import Agendamento
+from app.services.google_calendar import delete_calendar_event
 
 
 def get_resources(resource: Reserva | Agendamento, db: Session, detail: str = 'Not found'):
@@ -68,7 +69,9 @@ def delete(delete_schema, resource_id:int, resource, db: Session, detail: str):
     if db_resource.cancelado:
         return not_found(detail=detail)
 
-    if db_resource:
+    if db_resource and db_resource.google_event_id:
+       delete_calendar_event(db_resource.google_event_id)
+       
        db_resource.cancelado = True
        db.commit()
        db.refresh(db_resource)

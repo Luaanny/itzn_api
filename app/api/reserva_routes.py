@@ -3,7 +3,7 @@ from http import HTTPStatus
 from fastapi import APIRouter
 from pydantic import EmailStr
 
-from app.sevices.reserva_service import (post_reservation, get_user_reservations, delete_reservation,
+from app.services.reserva_service import (post_reservation, get_user_reservations, delete_reservation,
                                          update_reservation, update_status, get_canceled_reservations)
 from app.core.annotateds import session_type
 from app.schemas.reserva import (CriarReserva, RespostaReserva, ListaReserva, 

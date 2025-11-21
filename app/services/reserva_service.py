@@ -4,7 +4,7 @@ from app.models.reserva import Reserva
 from datetime import date
 from app.core.exceptions import conflict, unauthorized, not_found
 from app.schemas.reserva import CriarReserva, DeletarReserva, AtualizarReserva, AlterarStatus
-from app.sevices import (post, delete, put, get_all_user_resources, get)
+from app.services import (post, delete, put, get_all_user_resources, get)
 
 def check_if_room_is_available(reservation_date: date, db: Session):
     room_conflict_query = db.scalar(select(Reserva).where(

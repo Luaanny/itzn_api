@@ -6,8 +6,9 @@ from sqlalchemy import select
 from app.models.agendamento import Agendamento
 from app.core.exceptions import conflict, not_found
 from app.schemas.agenda import CriarAgenda, DeletarAgenda, AtualizarAgenda
-from app.sevices import post, get_all_user_resources, delete, put
-from app.sevices.reserva_service import check_if_room_is_available
+from app.services import post, get_all_user_resources, delete, put
+from app.services.reserva_service import check_if_room_is_available
+from app.services.google_calendar import create_calendar_event
 
 
 def check_if_computer_is_available(db: Session, computer_number: int,
@@ -31,7 +32,19 @@ def post_appointment(db: Session, create_schema: CriarAgenda):
                                    reservation_date=create_schema.data_agendamento,
                                    reservation_hour=create_schema.hora_inicio)
 
-    return post(db=db, create_schema=create_schema, resource=Agendamento)
+    novo_agendamento = post(db=db, create_schema=create_schema, resource=Agendamento)
+
+    try:
+        google_id = create_calendar_event(create_schema)
+        if google_id:
+            novo_agendamento.google_event_id = google_id
+            db.add(novo_agendamento)
+            db.commit()
+            db.refresh(novo_agendamento)
+    except Exception as e:
+        print(f"Falha na integração Google: {e}")
+
+    return novo_agendamento
 
 
 def get_all_user_appointments(db: Session, user_email: str):

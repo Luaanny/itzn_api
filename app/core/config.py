@@ -7,5 +7,8 @@ class Settings(BaseSettings):
 
     DATABASE_URL: str
     API_KEY: str
+    GOOGLE_SERVICE_ACCOUNT_FILE: str  
+    GOOGLE_CALENDAR_ID: str 
+    SCOPES: str
 
-settings = Settings()
+settings = Settings() 
