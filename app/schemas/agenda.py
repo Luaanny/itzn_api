@@ -1,20 +1,40 @@
-from datetime import datetime
-from pydantic import BaseModel, Field, field_validator
+from datetime import date
+from typing import List
+from app.core.annotateds import valid_date
 
+from typing import Literal
+from pydantic import BaseModel, ConfigDict, EmailStr, AfterValidator
+
+VALID_COMPUTER_NUMBERS = Literal[2,3,4,5,6,7,8,9,10]
+VALID_START_HOUR = Literal[13, 14, 15, 16]
 
 class CriarAgenda(BaseModel):
+    data_agendamento: valid_date
+    hora_inicio: VALID_START_HOUR
+    numero_computador: VALID_COMPUTER_NUMBERS
+    email_usuario: EmailStr
+    autor: str
+    model_config = ConfigDict(from_attributes=True)
+
+
+class RespostaAgenda(BaseModel):
     id: int
-    data_inicio: datetime
-    data_fim: datetime
-    computador: int
-    email_usuario: str
+    data_agendamento: valid_date
+    hora_inicio: VALID_START_HOUR
+    numero_computador: VALID_COMPUTER_NUMBERS
+    email_usuario: EmailStr
+    autor: str
 
 
-class PublicAgenda(BaseModel):
-    data_inicio: datetime
-    data_fim: datetime
-    computador: int
-    email_usuario: str
+class AtualizarAgenda(BaseModel):
+    data_agendamento: valid_date
+    hora_inicio: VALID_START_HOUR
+    numero_computador: VALID_COMPUTER_NUMBERS
+    email_usuario: EmailStr
+
+class DeletarAgenda(BaseModel):
+    email_usuario: EmailStr
+    usuario_administrador: bool
 
 class ListaAgenda(BaseModel):
-    agendamentos: list[PublicAgenda]
+    agendamentos: List[RespostaAgenda]
