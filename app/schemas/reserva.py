@@ -8,6 +8,7 @@ class CriarReserva(BaseModel):
     data_reserva: valid_date
     justificativa: str
     email_usuario: EmailStr
+    usuario_administrador: bool
     autor: str
     model_config = ConfigDict(from_attributes=True)
 

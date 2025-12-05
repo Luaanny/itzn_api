@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 from app.models.reserva import Reserva
 from datetime import date
-from app.core.exceptions import conflict, unauthorized, not_found
+from app.core.exceptions import conflict, unauthorized, not_found, server_error
 from app.schemas.reserva import CriarReserva, DeletarReserva, AtualizarReserva, AlterarStatus
 from app.services import (post, delete, put, 
                           get_all_user_resources, get, get_all_resources)
@@ -12,7 +12,8 @@ from app.schemas.filter import ReservaFiltro
 def check_if_room_is_available(reservation_date: date, db: Session):
     room_conflict_query = db.scalar(select(Reserva).where(
         Reserva.data_reserva == reservation_date,
-        Reserva.cancelado == False
+        Reserva.cancelado == False,
+        Reserva.status == 'Aprovado'
     ))
 
     if room_conflict_query:
@@ -26,17 +27,23 @@ def post_reservation(db: Session, create_schema: CriarReserva):
     check_if_room_is_available(reservation_date=create_schema.data_reserva, db=db)
 
     nova_reserva = post(resource=Reserva, create_schema=create_schema)
+    
+    if create_schema.usuario_administrador:
+        nova_reserva.status = 'Aprovado'
+        try:
+            google_id = create_reservation_event(create_schema)
+            if google_id:
+                nova_reserva.google_event_id = google_id
+                db.add(nova_reserva)
+                db.commit()
+                db.refresh(nova_reserva)
+        except Exception as e:
+            return server_error(f"Falha na integração Google: {e}")
+    
 
-    try:
-        google_id = create_reservation_event(create_schema)
-        if google_id:
-            nova_reserva.google_event_id = google_id
-            db.add(nova_reserva)
-            db.commit()
-            db.refresh(nova_reserva)
-    except Exception as e:
-        print(f"Falha na integração Google: {e}")
-
+    db.add(nova_reserva)
+    db.commit()
+    db.refresh(nova_reserva)
     return nova_reserva
 
 def get_user_reservations(db: Session, user_email: str, filter: ReservaFiltro):

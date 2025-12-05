@@ -18,3 +18,9 @@ def conflict(detail: str = 'Conflict'):
         status_code=HTTPStatus.CONFLICT,
         detail=detail,
     )
+
+def server_error(detail: str = 'Internal Server Error'):
+    raise HTTPException(
+        status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+        detail=detail,
+    )

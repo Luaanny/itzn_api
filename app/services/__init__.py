@@ -49,7 +49,7 @@ def get_all_user_resources(resource: Reserva | Agendamento, db: Session,
 
 
 def post(resource: Reserva | Agendamento, create_schema):
-    resource_dict = create_schema.model_dump()
+    resource_dict = create_schema.model_dump(exclude=['usuario_administrador'])
     db_resource = resource(**resource_dict)
 
     return db_resource
