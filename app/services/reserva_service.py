@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import select
+from sqlalchemy import select, update
 from app.models.reserva import Reserva
+from app.models.agendamento import Agendamento
 from datetime import date
 from app.core.exceptions import conflict, unauthorized, not_found, server_error
 from app.schemas.reserva import CriarReserva, DeletarReserva, AtualizarReserva, AlterarStatus
@@ -23,6 +24,32 @@ def check_if_room_is_available(reservation_date: date, db: Session):
 
     return True
 
+def batch_update_reservations_status(db: Session, db_reservation: Reserva, update_schema):
+    stmt = (
+        update(Reserva)
+        .where(
+            Reserva.data_reserva == db_reservation.data_reserva,
+            Reserva.id != db_reservation.id
+        )
+        .values(
+            status='Negado',
+            alterado_por=update_schema.email_usuario,
+            alterado=True
+        )
+    )
+    db.execute(stmt)
+    
+    stmt2 = (
+        update(Agendamento)
+        .where(
+            Agendamento.data_agendamento == db_reservation.data_reserva,
+        )
+        .values(
+            cancelado=True
+        )
+    )
+    db.execute(stmt2)
+
 def post_reservation(db: Session, create_schema: CriarReserva):
     check_if_room_is_available(reservation_date=create_schema.data_reserva, db=db)
 
@@ -34,6 +61,7 @@ def post_reservation(db: Session, create_schema: CriarReserva):
             google_id = create_reservation_event(create_schema)
             if google_id:
                 nova_reserva.google_event_id = google_id
+                batch_update_reservations_status(db, nova_reserva, create_schema)
                 db.add(nova_reserva)
                 db.commit()
                 db.refresh(nova_reserva)
@@ -64,15 +92,25 @@ def update_reservation(db: Session, update_schema: AtualizarReserva, resource_id
 def update_status(db: Session,reservation_id: int, update_schema: AlterarStatus):
     db_reservation = get(db=db, resource=Reserva, resource_id=reservation_id, detail='Reserva não encontrada')
 
-    if db_reservation.changed and db_reservation.changed_by != update_schema.email_usuario:
+    if db_reservation.alterado and db_reservation.alterado_por != update_schema.email_usuario:
         return conflict(detail='O status dessa reserva já foi modificada por outro usuário.')
 
     if db_reservation.email_usuario == update_schema.email_usuario:
-        return unauthorized('Você não pode mudas o status da própria reserva')
+        return unauthorized('Você não pode mudar o status da própria reserva')
 
     db_reservation.status = update_schema.status
     db_reservation.alterado_por = update_schema.email_usuario
-    db_reservation.alterado_por = True
+    db_reservation.alterado = True
+
+    if update_schema.status == 'Aprovado':
+        try:
+            google_id = create_reservation_event(db_reservation)
+            if google_id:
+                db_reservation.google_event_id = google_id
+                
+                batch_update_reservations_status(db, db_reservation, update_schema)
+        except Exception as e:
+            return server_error(f"Falha na integração Google: {e}")
 
     db.commit()
     db.refresh(db_reservation)

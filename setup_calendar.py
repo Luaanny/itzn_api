@@ -11,7 +11,6 @@ def setup():
         SERVICE_ACCOUNT_FILE, scopes=SCOPES)
     service = build('calendar', 'v3', credentials=creds)
 
-    # 1. O Robô cria o calendário
     print("Criando novo calendário...")
     calendar_body = {
         'summary': 'Agendamentos do Sistema (Robot)',
@@ -22,7 +21,6 @@ def setup():
     calendar_id = new_calendar['id']
     print(f"✅ Calendário criado com sucesso! ID: {calendar_id}")
 
-    # 2. O Robô compartilha com você (apenas leitura ou owner)
     print(f"Compartilhando com {SEU_EMAIL_CORPORATIVO}...")
     rule = {
         'scope': {
