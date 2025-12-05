@@ -6,7 +6,8 @@ from sqlalchemy import select
 from app.models.agendamento import Agendamento
 from app.core.exceptions import conflict, not_found
 from app.schemas.agenda import CriarAgenda, DeletarAgenda, AtualizarAgenda
-from app.services import post, get_all_user_resources, delete, put
+from app.schemas.filter import AgendamentoFiltro
+from app.services import post, get_all_user_resources, delete, put, get_all_resources
 from app.services.reserva_service import check_if_room_is_available
 from app.services.google_calendar import create_appointment_event
 
@@ -32,7 +33,7 @@ def post_appointment(db: Session, create_schema: CriarAgenda):
                                    reservation_date=create_schema.data_agendamento,
                                    reservation_hour=create_schema.hora_inicio)
 
-    novo_agendamento = post(db=db, create_schema=create_schema, resource=Agendamento)
+    novo_agendamento = post(create_schema=create_schema, resource=Agendamento)
 
     try:
         google_id = create_appointment_event(create_schema)
@@ -47,9 +48,9 @@ def post_appointment(db: Session, create_schema: CriarAgenda):
     return novo_agendamento
 
 
-def get_all_user_appointments(db: Session, user_email: str):
+def get_all_user_appointments(db: Session, user_email: str, filter: AgendamentoFiltro):
     agendamentos = get_all_user_resources(db=db, user_email=user_email, resource=Agendamento,
-                                          detail='Nenhum agendamento encontrado para esse usuário.')
+                                          detail='Nenhum agendamento encontrado para esse usuário.', filter=filter)
 
     return {"agendamentos": agendamentos}
 
@@ -69,3 +70,17 @@ def get_canceled_appointments(db: Session, user_email: str):
 
     return {'agendamentos': canceled_reservations} if canceled_reservations else \
         not_found('Nenhuma reserva cancelada por esse usuário até o momento.')
+
+def get_all_canceled_appointments(db: Session):
+    canceled_appointments = db.scalars(select(Agendamento).where(
+        Agendamento.cancelado == True
+    )).all()
+
+    return {'agendamentos': canceled_appointments} if canceled_appointments else \
+        not_found('Nenhum agendamento cancelado até o momento.')
+
+def get_all_appointments(db: Session, filter: AgendamentoFiltro):
+    agendamentos = get_all_resources(resource=Agendamento, db=db, detail='Nenhum agendamento encontrado.',
+                                     filter=filter)
+
+    return {'agendamentos': agendamentos}

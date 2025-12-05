@@ -13,6 +13,7 @@ class CriarAgenda(BaseModel):
     hora_inicio: VALID_START_HOUR
     numero_computador: VALID_COMPUTER_NUMBERS
     email_usuario: EmailStr
+    autor: str
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -22,6 +23,7 @@ class RespostaAgenda(BaseModel):
     hora_inicio: VALID_START_HOUR
     numero_computador: VALID_COMPUTER_NUMBERS
     email_usuario: EmailStr
+    autor: str
 
 
 class AtualizarAgenda(BaseModel):

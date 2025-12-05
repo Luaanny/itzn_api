@@ -4,8 +4,10 @@ from app.models.reserva import Reserva
 from datetime import date
 from app.core.exceptions import conflict, unauthorized, not_found
 from app.schemas.reserva import CriarReserva, DeletarReserva, AtualizarReserva, AlterarStatus
-from app.services import (post, delete, put, get_all_user_resources, get)
+from app.services import (post, delete, put, 
+                          get_all_user_resources, get, get_all_resources)
 from app.services.google_calendar import create_reservation_event
+from app.schemas.filter import ReservaFiltro
 
 def check_if_room_is_available(reservation_date: date, db: Session):
     room_conflict_query = db.scalar(select(Reserva).where(
@@ -23,7 +25,7 @@ def check_if_room_is_available(reservation_date: date, db: Session):
 def post_reservation(db: Session, create_schema: CriarReserva):
     check_if_room_is_available(reservation_date=create_schema.data_reserva, db=db)
 
-    nova_reserva = post(resource=Reserva, create_schema=create_schema, db=db)
+    nova_reserva = post(resource=Reserva, create_schema=create_schema)
 
     try:
         google_id = create_reservation_event(create_schema)
@@ -37,8 +39,8 @@ def post_reservation(db: Session, create_schema: CriarReserva):
 
     return nova_reserva
 
-def get_user_reservations(db: Session, user_email: str):
-    reservas = get_all_user_resources(db=db, user_email=user_email,
+def get_user_reservations(db: Session, user_email: str, filter: ReservaFiltro):
+    reservas = get_all_user_resources(db=db, user_email=user_email,filter=filter,
                                   resource=Reserva, detail='Nenhum agendamento encontrado para esse usuário.')
 
     return {"reservas": reservas}
@@ -77,3 +79,15 @@ def get_canceled_reservations(db: Session, user_email: str):
 
     return {'reservas': canceled_reservations} if canceled_reservations else \
         not_found('Nenhuma reserva cancelada por esse usuário até o momento.')
+
+def get_all_canceled_reservations(db: Session):
+    canceled_reservations = db.scalars(select(Reserva).where(
+        Reserva.cancelado == True
+    )).all()
+
+    return {'reservas': canceled_reservations} if canceled_reservations else \
+        not_found('Nenhuma reserva cancelada até o momento.')
+
+def get_all_reservations(db: Session, filter: ReservaFiltro):
+    reservas = get_all_resources(resource=Reserva, db=db, detail='Nenhuma reserva encontrada.', filter=filter)
+    return {'reservas': reservas}

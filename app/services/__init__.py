@@ -1,14 +1,28 @@
 from sqlalchemy.orm import Session
 from app.core.exceptions import not_found, unauthorized
-from sqlalchemy import select
+from sqlalchemy import select, desc
 from app.models.reserva import Reserva
 from app.models.agendamento import Agendamento
 from app.services.google_calendar import delete_calendar_event
+from app.schemas.filter import ReservaFiltro, AgendamentoFiltro
 
 
-def get_resources(resource: Reserva | Agendamento, db: Session, detail: str = 'Not found'):
-    db_resource = db.scalars(select(resource)).all()
-    return db_resource if db_resource else not_found(detail)
+def get_all_resources(resource: Reserva | Agendamento, db: Session, filter: ReservaFiltro | AgendamentoFiltro,
+                  detail: str = 'Not found'):
+    query = select(resource).where(resource.cancelado == False)
+
+    if filter.autor:
+        query = query.where(resource.autor == filter.autor)
+    
+    if getattr(filter, 'status', None): 
+        query = query.where(resource.status == filter.status)
+
+    query = query.order_by(desc(resource.id))
+    query = query.offset(filter.offset).limit(filter.limit)
+
+    db_resources = db.scalars(query).all()
+
+    return db_resources if db_resources else not_found(detail)
 
 
 def get(resource: Reserva | Agendamento, db: Session, resource_id: int, detail: str = 'Not found'):
@@ -16,24 +30,27 @@ def get(resource: Reserva | Agendamento, db: Session, resource_id: int, detail: 
 
     return db_resource if db_resource else not_found(detail)
 
-
 def get_all_user_resources(resource: Reserva | Agendamento, db: Session,
-                           user_email: str, detail: str):
-    db_resources = db.scalars(select(resource).where(
-        resource.email_usuario == user_email,
-        resource.cancelado == False
-        )).all()
+                           user_email: str, detail: str, filter: ReservaFiltro | AgendamentoFiltro):
+   
+    query = select(resource).where(
+        resource.cancelado == False,
+        resource.email_usuario == user_email)
+    
+    if getattr(filter, 'status', None): 
+        query = query.where(resource.status == filter.status)
+
+    query = query.order_by(desc(resource.id))
+    query = query.offset(filter.offset).limit(filter.limit)
+
+    db_resources = db.scalars(query).all()
 
     return db_resources if db_resources else not_found(detail)
 
 
-def post(resource: Reserva | Agendamento, create_schema, db: Session):
+def post(resource: Reserva | Agendamento, create_schema):
     resource_dict = create_schema.model_dump()
     db_resource = resource(**resource_dict)
-
-    db.add(db_resource)
-    db.commit()
-    db.refresh(db_resource)
 
     return db_resource
 

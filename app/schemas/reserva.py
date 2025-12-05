@@ -8,6 +8,7 @@ class CriarReserva(BaseModel):
     data_reserva: valid_date
     justificativa: str
     email_usuario: EmailStr
+    autor: str
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -18,6 +19,7 @@ class RespostaReserva(BaseModel):
     email_usuario: EmailStr
     status: VALID_STATUS
     alterado: bool
+    autor: str
 
 
 class AtualizarReserva(BaseModel):

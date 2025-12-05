@@ -1,14 +1,15 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Header
 from http import HTTPStatus
 
 from pydantic import EmailStr
 
-from app.core.security import get_api_key
 from app.core.annotateds import session_type, check_api_key
 from app.schemas.agenda import (CriarAgenda, RespostaAgenda, ListaAgenda, 
                                 DeletarAgenda, AtualizarAgenda)
-from app.services.agenda_service import (post_appointment, get_all_user_appointments,
-                                        delete_user_appointment, update_user_appointment, get_canceled_appointments)
+from app.schemas.filter import AgendamentoFiltro
+from app.services.agenda_service import (post_appointment, get_all_user_appointments, get_all_canceled_appointments,
+                                        delete_user_appointment, update_user_appointment, get_canceled_appointments,
+                                        get_all_appointments)
 
 router = APIRouter()
 
@@ -24,19 +25,25 @@ def criar_agendamento(
 
 @router.get("", response_model=ListaAgenda)
 def resgatar_agendamentos(
-        user_email: EmailStr,
-        db: session_type,
-        api_key: check_api_key
+    db: session_type,
+    api_key: check_api_key,
+    user_email: EmailStr | None = Header(None, alias="X-User-Email"),
+    filter: AgendamentoFiltro = Depends()
 ):
-    return get_all_user_appointments(db=db, user_email=user_email)
+    if user_email:
+        return get_all_user_appointments(db=db, user_email=user_email, filter=filter)
+    
+    return get_all_appointments(db=db, filter=filter)
 
 @router.get("/cancelados", response_model=ListaAgenda)
 def resgatar_agendamentos_cancelados(
     db: session_type,
-    user_email: EmailStr,
-    api_key: check_api_key
+    api_key: check_api_key,
+    user_email: EmailStr | None = Header(None, alias="X-User-Email")
 ):
-    return get_canceled_appointments(db=db, user_email=user_email)
+    if user_email:
+        return get_canceled_appointments(db=db, user_email=user_email)
+    return get_all_canceled_appointments(db=db)
 
 @router.delete("/{agenda_id}", status_code=HTTPStatus.NO_CONTENT)
 def deletar_agendamento(
